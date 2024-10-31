@@ -1,0 +1,398 @@
+<html><head><base href="https://websim.io/wireless-networks-quiz/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario de Redes Inalámbricas</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #aedaa2;
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .question {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+    }
+    .option {
+        margin: 5px 0;
+        padding: 10px;
+        background-color: #ecf0f1;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .option:hover {
+        background-color: #d5dbdb;
+    }
+    .selected {
+        background-color: #3498db;
+        color: #fff;
+    }
+    #submit, #restart {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #2ecc71;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    #submit:hover, #restart:hover {
+        background-color: #27ae60;
+    }
+    #result {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+    .explanation {
+        background-color: #e8f6f3;
+        border-left: 5px solid #1abc9c;
+        padding: 10px;
+        margin-top: 10px;
+        display: none;
+    }
+    .correct {
+        background-color: #d4edda;
+        border-color: #28a745;
+    }
+    .incorrect {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+    }
+</style>
+</head>
+<body>
+    <h1>Cuestionario de Redes Inalámbricas</h1>
+    <div id="quiz">
+        <!-- Las preguntas se generarán dinámicamente aquí -->
+    </div>
+    <button id="submit">Enviar respuestas</button>
+    <div id="result"></div>
+    <button id="restart" style="display: none;">Reiniciar cuestionario</button>
+
+    <script>
+        const questions = [
+            {
+                question: "¿Qué es una red inalámbrica?",
+                options: [
+                    "Una red que utiliza cables para conectar dispositivos",
+                    "Una red que utiliza ondas electromagnéticas para transmitir datos",
+                    "Una red que solo funciona con dispositivos móviles",
+                    "Una red que requiere línea de visión directa entre dispositivos"
+                ],
+                correctAnswer: 1,
+                explanation: "Una red inalámbrica utiliza ondas electromagnéticas para transmitir datos entre dispositivos sin necesidad de cables físicos."
+            },
+            {
+                question: "¿Cuál de los siguientes NO es un tipo de red inalámbrica?",
+                options: [
+                    "Wi-Fi",
+                    "Bluetooth",
+                    "Ethernet",
+                    "NFC (Near Field Communication)"
+                ],
+                correctAnswer: 2,
+                explanation: "Ethernet es una tecnología de red cableada, no inalámbrica. Las demás opciones son tipos de redes inalámbricas."
+            },
+            {
+                question: "¿Qué estándar IEEE se utiliza comúnmente para las redes Wi-Fi?",
+                options: [
+                    "802.3",
+                    "802.11",
+                    "802.15",
+                    "802.16"
+                ],
+                correctAnswer: 1,
+                explanation: "El estándar IEEE 802.11 es el que se utiliza para las redes Wi-Fi. Los otros estándares corresponden a Ethernet (802.3), Bluetooth (802.15) y WiMAX (802.16)."
+            },
+            {
+                question: "¿Cuál de los siguientes NO es un protocolo de seguridad para redes Wi-Fi?",
+                options: [
+                    "WEP",
+                    "WPA",
+                    "WPA2",
+                    "HTTPS"
+                ],
+                correctAnswer: 3,
+                explanation: "HTTPS es un protocolo de seguridad para la web, no para redes Wi-Fi. WEP, WPA y WPA2 son protocolos de seguridad específicos para redes inalámbricas."
+            },
+            {
+                question: "¿Cuál es una ventaja de las redes inalámbricas sobre las redes cableadas?",
+                options: [
+                    "Mayor velocidad de transmisión",
+                    "Mayor seguridad",
+                    "Movilidad y flexibilidad",
+                    "Menor interferencia"
+                ],
+                correctAnswer: 2,
+                explanation: "La movilidad y flexibilidad son ventajas clave de las redes inalámbricas, ya que permiten a los usuarios conectarse desde diferentes ubicaciones sin necesidad de cables."
+            },
+            {
+                question: "¿Qué tecnología inalámbrica se utiliza comúnmente para conectar dispositivos a corta distancia, como auriculares a teléfonos?",
+                options: [
+                    "Wi-Fi",
+                    "Bluetooth",
+                    "NFC",
+                    "5G"
+                ],
+                correctAnswer: 1,
+                explanation: "Bluetooth es una tecnología inalámbrica diseñada para conexiones de corto alcance entre dispositivos, como auriculares y teléfonos."
+            },
+            {
+                question: "¿Qué significa SSID en el contexto de redes inalámbricas?",
+                options: [
+                    "Secure System Identification",
+                    "Service Set Identifier",
+                    "System Security ID",
+                    "Wireless Network Name"
+                ],
+                correctAnswer: 1,
+                explanation: "SSID significa Service Set Identifier, que es el nombre que identifica una red inalámbrica."
+            },
+            {
+                question: "¿Cuál de los siguientes factores NO afecta generalmente el alcance de una red Wi-Fi?",
+                options: [
+                    "Obstáculos físicos",
+                    "Potencia del router",
+                    "Interferencia de otros dispositivos",
+                    "El color del router"
+                ],
+                correctAnswer: 3,
+                explanation: "El color del router no afecta el alcance de una red Wi-Fi. Los obstáculos físicos, la potencia del router y la interferencia de otros dispositivos sí pueden afectar el alcance."
+            },
+            {
+                question: "¿Qué significa IoT en el contexto de redes inalámbricas?",
+                options: [
+                    "Internet of Things",
+                    "Intranet of Technology",
+                    "Internal Online Transmission",
+                    "Interconnected Online Terminals"
+                ],
+                correctAnswer: 0,
+                explanation: "IoT significa Internet of Things (Internet de las Cosas), que se refiere a la interconexión de dispositivos cotidianos a través de internet."
+            },
+            {
+                question: "¿Cuál de las siguientes bandas de frecuencia NO es comúnmente utilizada por redes Wi-Fi?",
+                options: [
+                    "2.4 GHz",
+                    "5 GHz",
+                    "60 GHz",
+                    "900 MHz"
+                ],
+                correctAnswer: 3,
+                explanation: "Las bandas de 2.4 GHz, 5 GHz y 60 GHz (Wi-Fi 6E) son utilizadas por redes Wi-Fi. La banda de 900 MHz no es común en Wi-Fi, pero se usa en otras tecnologías inalámbricas."
+            },
+            {
+                question: "¿Qué tecnología inalámbrica se utiliza comúnmente para pagos sin contacto?",
+                options: [
+                    "Bluetooth",
+                    "Wi-Fi",
+                    "NFC",
+                    "Infrarrojo"
+                ],
+                correctAnswer: 2,
+                explanation: "NFC (Near Field Communication) es la tecnología comúnmente utilizada para pagos sin contacto debido a su corto alcance y seguridad."
+            },
+            {
+                question: "¿Cuál de los siguientes NO es un componente típico de una red inalámbrica doméstica?",
+                options: [
+                    "Router inalámbrico",
+                    "Adaptador de red inalámbrico",
+                    "Switch Ethernet",
+                    "Dispositivo cliente (como un smartphone)"
+                ],
+                correctAnswer: 2,
+                explanation: "Un switch Ethernet es un componente de redes cableadas, no de redes inalámbricas. Los otros elementos son comunes en redes inalámbricas domésticas."
+            },
+            {
+                question: "¿Qué significa MIMO en el contexto de redes inalámbricas?",
+                options: [
+                    "Multiple Input, Multiple Output",
+                    "Managed Internet Mobile Operations",
+                    "Maximized Internal Memory Overflow",
+                    "Minimized Interference, Maximized Output"
+                ],
+                correctAnswer: 0,
+                explanation: "MIMO significa Multiple Input, Multiple Output, una tecnología que utiliza múltiples antenas para mejorar el rendimiento de las redes inalámbricas."
+            },
+            {
+                question: "¿Cuál de las siguientes NO es una medida de seguridad común para redes Wi-Fi?",
+                options: [
+                    "Cambiar la contraseña predeterminada",
+                    "Habilitar el cifrado (como WPA2)",
+                    "Ocultar el SSID",
+                    "Aumentar la potencia de transmisión al máximo"
+                ],
+                correctAnswer: 3,
+                explanation: "Aumentar la potencia de transmisión al máximo no es una medida de seguridad, y de hecho puede hacer que la red sea más vulnerable. Las otras opciones son medidas de seguridad comunes."
+            },
+            {
+                question: "¿Qué tecnología inalámbrica se utiliza comúnmente en redes de área personal (PAN)?",
+                options: [
+                    "Wi-Fi",
+                    "Bluetooth",
+                    "5G",
+                    "Satellite"
+                ],
+                correctAnswer: 1,
+                explanation: "Bluetooth es comúnmente utilizado en redes de área personal (PAN) debido a su corto alcance y bajo consumo de energía."
+            },
+            {
+                question: "¿Cuál de las siguientes afirmaciones sobre las redes mesh es INCORRECTA?",
+                options: [
+                    "Utilizan múltiples nodos para extender la cobertura",
+                    "Pueden auto-repararse si un nodo falla",
+                    "Requieren una conexión directa de cada nodo al router principal",
+                    "Pueden mejorar la estabilidad de la red"
+                ],
+                correctAnswer: 2,
+                explanation: "En una red mesh, los nodos no necesitan una conexión directa al router principal. Pueden conectarse entre sí para formar una red extendida."
+            },
+            {
+                question: "¿Qué significa VPN en el contexto de redes?",
+                options: [
+                    "Very Private Network",
+                    "Virtual Personal Network",
+                    "Virtual Private Network",
+                    "Verified Public Network"
+                ],
+                correctAnswer: 2,
+                explanation: "VPN significa Virtual Private Network (Red Privada Virtual), una tecnología que permite crear una conexión segura a otra red a través de Internet."
+            },
+            {
+                question: "¿Cuál de las siguientes NO es una característica de Wi-Fi 6 (802.11ax)?",
+                options: [
+                    "Mayor eficiencia en entornos con muchos dispositivos",
+                    "Mejor rendimiento en exteriores",
+                    "Menor consumo de energía en dispositivos",
+                    "Compatibilidad exclusiva con dispositivos nuevos"
+                ],
+                correctAnswer: 3,
+                explanation: "Wi-Fi 6 es compatible con versiones anteriores de Wi-Fi. Las otras características mencionadas son beneficios de Wi-Fi 6."
+            },
+            {
+                question: "¿Qué tecnología permite la comunicación inalámbrica entre dispositivos sin necesidad de un punto de acceso central?",
+                options: [
+                    "Infrastructure mode",
+                    "Ad-hoc mode",
+                    "Bridge mode",
+                    "Repeater mode"
+                ],
+                correctAnswer: 1,
+                explanation: "El modo ad-hoc permite que los dispositivos se comuniquen directamente entre sí sin necesidad de un punto de acceso central."
+            },
+            {
+                question: "¿Cuál de las siguientes NO es una ventaja común de las redes inalámbricas?",
+                options: [
+                    "Facilidad de instalación",
+                    "Movilidad",
+                    "Escalabilidad",
+                    "Mayor seguridad que las redes cableadas"
+                ],
+                correctAnswer: 3,
+                explanation: "Las redes inalámbricas generalmente no se consideran más seguras que las redes cableadas debido a la naturaleza de la transmisión de datos a través del aire."
+            }
+        ];
+
+        let currentAnswers = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function displayQuestions() {
+            const quizContainer = document.getElementById('quiz');
+            shuffleArray(questions);
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <p><strong>Pregunta ${index + 1}:</strong> ${q.question}</p>
+                    <div class="options">
+                        ${q.options.map((option, i) => `
+                            <div class="option" data-question="${index}" data-option="${i}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="explanation-${index}"></div>
+                `;
+                quizContainer.appendChild(questionDiv);
+            });
+
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', selectOption);
+            });
+        }
+
+        function selectOption(e) {
+            const questionIndex = e.target.dataset.question;
+            const optionIndex = e.target.dataset.option;
+            
+            document.querySelectorAll(`.option[data-question="${questionIndex}"]`).forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            e.target.classList.add('selected');
+            currentAnswers[questionIndex] = parseInt(optionIndex);
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            questions.forEach((q, index) => {
+                const userAnswer = currentAnswers[index];
+                const explanation = document.getElementById(`explanation-${index}`);
+                explanation.style.display = 'block';
+                explanation.textContent = q.explanation;
+                
+                if (userAnswer === q.correctAnswer) {
+                    score++;
+                    explanation.classList.add('correct');
+                } else {
+                    explanation.classList.add('incorrect');
+                }
+            });
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `Tu puntuación: ${score} de ${questions.length}`;
+            
+            document.getElementById('submit').style.display = 'none';
+            document.getElementById('restart').style.display = 'block';
+        }
+
+        function restartQuiz() {
+            currentAnswers = [];
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            displayQuestions();
+            document.getElementById('result').textContent = '';
+            document.getElementById('submit').style.display = 'block';
+            document.getElementById('restart').style.display = 'none';
+        }
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+        document.getElementById('restart').addEventListener('click', restartQuiz);
+
+        displayQuestions();
+    </script>
+</body></html>

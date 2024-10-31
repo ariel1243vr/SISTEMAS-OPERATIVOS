@@ -1,0 +1,317 @@
+<html><head><base href="https://interactive-networking.com/word-search/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sopa de Letras Interactiva: Tecnologías y Arquitecturas de Redes</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #aedaa2;
+    }
+    .container {
+        text-align: center;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        max-width: 1000px;
+        width: 95%;
+    }
+    h1 {
+        color: #2c3e50;
+        font-size: 24px;
+    }
+    .game-area {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .word-search {
+        display: grid;
+        grid-template-columns: repeat(20, 25px);
+        gap: 1px;
+        background-color: #ecf0f1;
+        padding: 10px;
+        border-radius: 5px;
+        user-select: none;
+    }
+    .cell {
+        width: 25px;
+        height: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 12px;
+    }
+    .cell:hover {
+        background-color: #2980b9;
+    }
+    .cell.selected {
+        background-color: yellow;
+        color: black;
+    }
+    .cell.correct {
+        background-color: #2ecc71;
+    }
+    .cell.incorrect {
+        background-color: #e74c3c;
+    }
+    .word-list {
+        text-align: left;
+        padding: 10px;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+        column-count: 2;
+        column-gap: 20px;
+    }
+    .word-list h3 {
+        margin-top: 0;
+        color: #2c3e50;
+        column-span: all;
+    }
+    .word-list ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .word-list li {
+        margin-bottom: 5px;
+        color: #34495e;
+        font-size: 14px;
+    }
+    .instructions {
+        margin-top: 20px;
+        font-style: italic;
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+    .button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        background-color: #707070;
+    }
+    #verifyButton {
+        background-color: #2ecc71;
+    }
+    #verifyButton:hover {
+        background-color: #27ae60;
+    }
+    #resetButton {
+        background-color: #e74c3c;
+    }
+    #resetButton:hover {
+        background-color: #c0392b;
+    }
+    #wordCounter {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Sopa de Letras: Tecnologías y Arquitecturas de Redes</h1>
+    <div class="game-area">
+        <div class="word-search" id="wordSearch"></div>
+        <div class="word-list">
+            <h3>Palabras a encontrar:</h3>
+            <ul id="wordList"></ul>
+        </div>
+    </div>
+    <p class="instructions">Selecciona letras para formar palabras manteniendo presionado el clic izquierdo y deslizando. Haz clic en 'Verificar Resultados' cuando termines.</p>
+    <button id="verifyButton" class="button">Verificar Resultados</button>
+    <button id="resetButton" class="button">Reiniciar Juego</button>
+    <div id="wordCounter">Palabras acertadas: 0 / 20</div>
+</div>
+
+<script>
+const words = [
+    'ETHERNET', 'WIFI', 'MPLS', 'TOPOLOGIA', 'ROUTERS', 'SWITCHES', 'SDN', 'NFV', 'IOT', 'VPN',
+    'FIREWALL', 'PROXY', 'LAN', 'WAN', 'VLAN', 'BANDWIDTH', 'LATENCIA', 'CONECTIVIDAD', 'SERVIDOR', 'CLIENTE'
+];
+const grid = [
+    ['E', 'T', 'H', 'E', 'R', 'N', 'E', 'T', 'O', 'P', 'S', 'D', 'N', 'F', 'V', 'L', 'A', 'N', 'W', 'C'],
+    ['T', 'O', 'P', 'O', 'L', 'O', 'G', 'I', 'A', 'N', 'W', 'I', 'F', 'I', 'P', 'A', 'T', 'E', 'A', 'O'],
+    ['H', 'P', 'S', 'W', 'I', 'T', 'C', 'H', 'E', 'S', 'I', 'O', 'V', 'R', 'N', 'T', 'E', 'T', 'N', 'N'],
+    ['E', 'M', 'D', 'R', 'O', 'U', 'T', 'E', 'R', 'S', 'F', 'T', 'P', 'E', 'R', 'E', 'N', 'W', 'C', 'E'],
+    ['R', 'L', 'N', 'E', 'T', 'W', 'O', 'R', 'K', 'D', 'I', 'M', 'N', 'W', 'O', 'N', 'C', 'O', 'L', 'C'],
+    ['N', 'S', 'V', 'T', 'H', 'E', 'P', 'N', 'S', 'N', 'M', 'P', 'L', 'A', 'U', 'C', 'I', 'R', 'I', 'T'],
+    ['E', 'N', 'P', 'U', 'E', 'R', 'O', 'E', 'W', 'V', 'P', 'L', 'A', 'L', 'T', 'I', 'A', 'K', 'E', 'I'],
+    ['T', 'F', 'N', 'O', 'R', 'T', 'L', 'T', 'I', 'P', 'L', 'S', 'N', 'L', 'E', 'A', 'V', 'L', 'N', 'V'],
+    ['S', 'V', 'E', 'R', 'N', 'Y', 'O', 'W', 'T', 'N', 'S', 'W', 'R', 'F', 'R', 'V', 'L', 'A', 'T', 'I'],
+    ['D', 'N', 'T', 'K', 'E', 'U', 'G', 'O', 'C', 'E', 'T', 'I', 'O', 'V', 'S', 'E', 'A', 'N', 'E', 'D'],
+    ['N', 'E', 'W', 'S', 'T', 'I', 'I', 'R', 'H', 'T', 'O', 'F', 'U', 'S', 'W', 'R', 'N', 'T', 'S', 'A'],
+    ['S', 'T', 'O', 'P', 'H', 'O', 'A', 'K', 'E', 'W', 'P', 'I', 'T', 'D', 'I', 'V', 'D', 'E', 'E', 'D'],
+    ['W', 'W', 'R', 'A', 'E', 'T', 'S', 'S', 'S', 'O', 'O', 'V', 'E', 'N', 'T', 'I', 'W', 'R', 'R', 'F'],
+    ['I', 'O', 'K', 'C', 'R', 'N', 'D', 'N', 'S', 'R', 'L', 'P', 'R', 'I', 'C', 'D', 'I', 'V', 'V', 'I'],
+    ['F', 'R', 'N', 'E', 'T', 'W', 'O', 'R', 'K', 'K', 'O', 'N', 'S', 'O', 'H', 'O', 'D', 'I', 'I', 'R'],
+    ['I', 'P', 'R', 'O', 'X', 'Y', 'B', 'A', 'N', 'D', 'W', 'I', 'D', 'T', 'E', 'R', 'T', 'D', 'D', 'E'],
+    ['C', 'L', 'I', 'E', 'N', 'T', 'E', 'L', 'A', 'T', 'E', 'N', 'C', 'I', 'A', 'W', 'H', 'O', 'O', 'W'],
+    ['O', 'N', 'E', 'C', 'T', 'I', 'V', 'I', 'D', 'A', 'D', 'S', 'E', 'R', 'V', 'I', 'D', 'R', 'R', 'A'],
+    ['N', 'E', 'T', 'W', 'O', 'R', 'K', 'F', 'U', 'N', 'C', 'T', 'I', 'O', 'N', 'V', 'I', 'R', 'T', 'L'],
+    ['S', 'O', 'F', 'T', 'W', 'A', 'R', 'E', 'D', 'E', 'F', 'I', 'N', 'E', 'D', 'N', 'E', 'T', 'W', 'L']
+];
+
+let gameActive = true;
+let isSelecting = false;
+let selectedCells = new Set();
+
+function createWordSearch() {
+    const wordSearch = document.getElementById('wordSearch');
+    wordSearch.innerHTML = '';
+    for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid[i].length; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.textContent = grid[i][j];
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.addEventListener('mousedown', startSelection);
+            cell.addEventListener('mouseover', continueSelection);
+            cell.addEventListener('mouseup', endSelection);
+            wordSearch.appendChild(cell);
+        }
+    }
+}
+
+function createWordList() {
+    const wordList = document.getElementById('wordList');
+    wordList.innerHTML = '';
+    words.forEach(word => {
+        const li = document.createElement('li');
+        li.textContent = word;
+        wordList.appendChild(li);
+    });
+}
+
+function startSelection(event) {
+    if (gameActive) {
+        isSelecting = true;
+        toggleCell(event.target);
+    }
+}
+
+function continueSelection(event) {
+    if (isSelecting && gameActive) {
+        toggleCell(event.target);
+    }
+}
+
+function endSelection() {
+    isSelecting = false;
+}
+
+function toggleCell(cell) {
+    const pos = `${cell.dataset.row},${cell.dataset.col}`;
+    if (selectedCells.has(pos)) {
+        selectedCells.delete(pos);
+        cell.classList.remove('selected');
+    } else {
+        selectedCells.add(pos);
+        cell.classList.add('selected');
+    }
+}
+
+function verifyResults() {
+    if (!gameActive) return;
+
+    const wordPositions = findWordPositions();
+    const correctCells = new Set();
+    let wordsFound = 0;
+
+    wordPositions.forEach(positions => {
+        let allSelected = true;
+        positions.forEach(pos => {
+            if (!selectedCells.has(pos)) {
+                allSelected = false;
+            }
+        });
+        if (allSelected) {
+            positions.forEach(pos => correctCells.add(pos));
+            wordsFound++;
+        }
+    });
+
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        const pos = `${cell.dataset.row},${cell.dataset.col}`;
+        if (correctCells.has(pos)) {
+            cell.classList.add('correct');
+        } else if (selectedCells.has(pos)) {
+            cell.classList.add('incorrect');
+        }
+    });
+
+    document.getElementById('wordCounter').textContent = `Palabras acertadas: ${wordsFound} / ${words.length}`;
+    gameActive = false;
+}
+
+function findWordPositions() {
+    const positions = [];
+    const directions = [
+        [0, 1], [1, 0], [1, 1], [-1, 1],
+        [0, -1], [-1, 0], [-1, -1], [1, -1]
+    ];
+
+    for (let word of words) {
+        for (let i = 0; i < grid.length; i++) {
+            for (let j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] === word[0]) {
+                    for (let [dx, dy] of directions) {
+                        let found = true;
+                        let wordPositions = [];
+                        for (let k = 0; k < word.length; k++) {
+                            const x = i + k * dx;
+                            const y = j + k * dy;
+                            if (x < 0 || x >= grid.length || y < 0 || y >= grid[i].length || grid[x][y] !== word[k]) {
+                                found = false;
+                                break;
+                            }
+                            wordPositions.push(`${x},${y}`);
+                        }
+                        if (found) {
+                            positions.push(wordPositions);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return positions;
+}
+
+function resetGame() {
+    gameActive = true;
+    selectedCells.clear();
+    createWordSearch();
+    createWordList();
+    document.getElementById('wordCounter').textContent = 'Palabras acertadas: 0 / 20';
+}
+
+createWordSearch();
+createWordList();
+
+document.getElementById('verifyButton').addEventListener('click', verifyResults);
+document.getElementById('resetButton').addEventListener('click', resetGame);
+document.body.addEventListener('mouseup', endSelection);
+</script>
+</body>
+</html>

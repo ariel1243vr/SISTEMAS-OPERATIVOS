@@ -1,0 +1,281 @@
+<html><head><base href="https://websim.ai/networking-crossword/"><title>Crucigrama Interactivo de Redes</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #aedaa2;
+      }
+      .container {
+        display: flex;
+        max-width: 1200px;
+        padding: 20px;
+      }
+      .crossword-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .crossword {
+        display: grid;
+        grid-template-columns: repeat(20, 30px);
+        gap: 1px;
+        margin-bottom: 20px;
+      }
+      .cell {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #fff;
+        position: relative;
+      }
+      .cell-number {
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        font-size: 10px;
+        color: #666;
+      }
+      .black {
+        background-color: #000;
+      }
+      .clues {
+        margin-left: 20px;
+        width: 300px;
+      }
+      h3 {
+        margin-top: 0;
+      }
+      .clue {
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      input {
+        width: 100%;
+        height: 100%;
+        border: none;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .buttons {
+        margin-top: 20px;
+      }
+      button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #counter {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+    </style>
+    </head>
+    <body>
+    <div class="container">
+      <div class="crossword-container">
+        <h1>Crucigrama Interactivo de Redes</h1>
+        <div class="crossword" id="crossword"></div>
+        <div class="buttons">
+          <button id="checkButton">Verificar resultados</button>
+          <button id="resetButton">Reiniciar juego</button>
+        </div>
+        <div id="counter">Palabras acertadas: 0 / 20</div>
+      </div>
+      <div class="clues" id="clues"></div>
+    </div>
+    
+    <script>
+    const words = [
+      {word: "PROTOCOLO", clue: "Conjunto de reglas que permiten la comunicación entre dispositivos en una red."},
+      {word: "ROUTER", clue: "Dispositivo que dirige el tráfico de datos entre diferentes redes."},
+      {word: "TOPOLOGIA", clue: "Disposición física o lógica de los elementos en una red."},
+      {word: "RED", clue: "Conjunto de dispositivos conectados que pueden comunicarse entre sí."},
+      {word: "LATENCIA", clue: "Tiempo que tarda un paquete de datos en viajar de un punto a otro en la red."},
+      {word: "CLIENTE", clue: "Dispositivo que solicita servicios de otro dispositivo en la red."},
+      {word: "CABLE", clue: "Medio físico que se utiliza para transmitir datos entre dispositivos en una red."},
+      {word: "SERVIDOR", clue: "Dispositivo que proporciona servicios o recursos a otros dispositivos en la red."},
+      {word: "TCP", clue: "Protocolo de control de transmisión que asegura la entrega de datos en redes."},
+      {word: "FIREWALL", clue: "Dispositivo o software que controla el tráfico de red para proteger sistemas."},
+      {word: "VPN", clue: "Red privada virtual que permite conexiones seguras a través de Internet."},
+      {word: "IP", clue: "Dirección única asignada a cada dispositivo en una red para identificarlo."},
+      {word: "WLAN", clue: "Red de área local inalámbrica que permite la conexión de dispositivos sin cables."},
+      {word: "DNS", clue: "Sistema que traduce nombres de dominio a direcciones IP."},
+      {word: "DIRECCION", clue: "Identificador numérico que permite localizar un dispositivo en una red."},
+      {word: "BANDWIDTH", clue: "Cantidad de datos que se pueden transmitir a través de una red en un tiempo determinado."},
+      {word: "SWITCH", clue: "Dispositivo que conecta múltiples dispositivos en una red y dirige el tráfico de datos entre ellos."},
+      {word: "PROXY", clue: "Servidor que actúa como intermediario entre un cliente y otro servidor, gestionando solicitudes y respuestas."},
+      {word: "NAT", clue: "Técnica que permite a múltiples dispositivos en una red local compartir una única dirección IP pública."},
+      {word: "SSID", clue: "Nombre de la red inalámbrica que identifica a una WLAN y permite la conexión de dispositivos."}
+    ];
+    
+    const grid = Array(20).fill().map(() => Array(20).fill(''));
+    const usedWords = [];
+    let wordNumber = 1;
+    
+    function placeWord(word, row, col, horizontal) {
+      const wordObj = {word, row, col, horizontal, number: wordNumber++};
+      if (horizontal) {
+        for (let i = 0; i < word.length; i++) {
+          grid[row][col + i] = word[i];
+        }
+      } else {
+        for (let i = 0; i < word.length; i++) {
+          grid[row + i][col] = word[i];
+        }
+      }
+      usedWords.push(wordObj);
+    }
+    
+    function canPlaceWord(word, row, col, horizontal) {
+      if (horizontal) {
+        if (col + word.length > 20) return false;
+        for (let i = 0; i < word.length; i++) {
+          if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) return false;
+        }
+      } else {
+        if (row + word.length > 20) return false;
+        for (let i = 0; i < word.length; i++) {
+          if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) return false;
+        }
+      }
+      return true;
+    }
+    
+    function generateCrossword() {
+      words.sort((a, b) => b.word.length - a.word.length);
+    
+      for (const wordObj of words) {
+        const word = wordObj.word;
+        let placed = false;
+    
+        for (let attempt = 0; attempt < 100; attempt++) {
+          const horizontal = Math.random() < 0.5;
+          const row = Math.floor(Math.random() * 20);
+          const col = Math.floor(Math.random() * 20);
+    
+          if (canPlaceWord(word, row, col, horizontal)) {
+            placeWord(word, row, col, horizontal);
+            placed = true;
+            break;
+          }
+        }
+    
+        if (!placed) {
+          console.log(`Could not place word: ${word}`);
+        }
+      }
+    }
+    
+    function renderCrossword() {
+      const crosswordElement = document.getElementById('crossword');
+      crosswordElement.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        for (let j = 0; j < 20; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          if (grid[i][j] === '') {
+            cell.className += ' black';
+          } else {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = 1;
+            input.value = grid[i][j][0];
+            input.readOnly = true;
+            cell.appendChild(input);
+            const wordStart = usedWords.find(w => 
+              (w.horizontal && w.row === i && w.col === j) || 
+              (!w.horizontal && w.row === i && w.col === j)
+            );
+            if (wordStart) {
+              const cellNumber = document.createElement('div');
+              cellNumber.className = 'cell-number';
+              cellNumber.textContent = wordStart.number;
+              cell.appendChild(cellNumber);
+            }
+          }
+          crosswordElement.appendChild(cell);
+        }
+      }
+    }
+    
+    function renderClues() {
+      const cluesElement = document.getElementById('clues');
+      cluesElement.innerHTML = '<h3>Pistas</h3>';
+      
+      usedWords.forEach(word => {
+        const clueElement = document.createElement('div');
+        clueElement.className = 'clue';
+        const clue = words.find(w => w.word === word.word).clue;
+        clueElement.textContent = `${word.number}. ${clue}`;
+        cluesElement.appendChild(clueElement);
+      });
+    }
+    
+    function enableInputs() {
+      const inputs = document.querySelectorAll('.cell input');
+      inputs.forEach(input => {
+        input.readOnly = false;
+        input.value = '';
+      });
+    }
+    
+    function checkResults() {
+      let correctWords = 0;
+      usedWords.forEach(word => {
+        let isCorrect = true;
+        for (let i = 0; i < word.word.length; i++) {
+          const row = word.horizontal ? word.row : word.row + i;
+          const col = word.horizontal ? word.col + i : word.col;
+          const input = document.querySelector(`.cell:nth-child(${row * 20 + col + 1}) input`);
+          if (input.value.toUpperCase() !== word.word[i]) {
+            isCorrect = false;
+            input.style.backgroundColor = 'red';
+          } else {
+            input.style.backgroundColor = 'green';
+          }
+        }
+        if (isCorrect) correctWords++;
+      });
+      
+      document.getElementById('counter').textContent = `Palabras acertadas: ${correctWords} / 20`;
+      
+      const inputs = document.querySelectorAll('.cell input');
+      inputs.forEach(input => input.readOnly = true);
+      
+      document.getElementById('checkButton').disabled = true;
+    }
+    
+    function resetGame() {
+      const inputs = document.querySelectorAll('.cell input');
+      inputs.forEach(input => {
+        input.readOnly = false;
+        input.value = input.defaultValue;
+        input.style.backgroundColor = 'white';
+      });
+      
+      document.getElementById('counter').textContent = 'Palabras acertadas: 0 / 20';
+      document.getElementById('checkButton').disabled = false;
+    }
+    
+    generateCrossword();
+    renderCrossword();
+    renderClues();
+    enableInputs();
+    
+    document.getElementById('checkButton').addEventListener('click', checkResults);
+    document.getElementById('resetButton').addEventListener('click', resetGame);
+    </script>
+    </body></html>
